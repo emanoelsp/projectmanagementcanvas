@@ -1,0 +1,44 @@
+/* Motion tokens — copiar para globals.css.
+   Regras completas em docs/DESIGN.md (seção Motion Engineering). */
+
+:root {
+  /* Curvas de easing padrão */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);      /* entrada/saída */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);  /* movimento na tela */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* drawers nativos */
+
+  /* Durações (nenhuma animação de UI passa de 300ms) */
+  --dur-micro: 120ms;  /* hover, toggles */
+  --dur-ui: 200ms;     /* modais, drawers, toasts */
+}
+
+/* Exemplo de entrada correta: scale(0.95) + opacity, nunca scale(0) */
+@keyframes enter {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-enter {
+  animation: enter var(--dur-ui) var(--ease-out);
+}
+
+/* Hover animado só em ponteiro fino (não dispara em toque) */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift {
+    transition: transform var(--dur-micro) var(--ease-out);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Acessibilidade: reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

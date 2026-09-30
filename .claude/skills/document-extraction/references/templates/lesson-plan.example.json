@@ -1,0 +1,38 @@
+{
+  "origem": "escola-exemplo",
+  "versao": "2024.1",
+  "campos": [
+    {
+      "chave": "competenciasBNCC",
+      "rotulo": "Competências (BNCC)",
+      "numPagina": 1,
+      "bbox": [40, 90, 555, 180],
+      "tipo": "lista",
+      "obrigatorio": true
+    },
+    {
+      "chave": "objetivosAprendizagem",
+      "rotulo": "Objetivos de Aprendizagem",
+      "numPagina": 1,
+      "bbox": [40, 190, 555, 300],
+      "tipo": "texto",
+      "obrigatorio": true
+    },
+    {
+      "chave": "recursosDidaticos",
+      "rotulo": "Recursos Didáticos",
+      "numPagina": 1,
+      "bbox": [40, 310, 555, 400],
+      "tipo": "lista",
+      "obrigatorio": false
+    },
+    {
+      "chave": "estrategiasAvaliacao",
+      "rotulo": "Estratégias de Avaliação",
+      "numPagina": 1,
+      "bbox": [40, 410, 555, 520],
+      "tipo": "texto",
+      "obrigatorio": true
+    }
+  ]
+}
