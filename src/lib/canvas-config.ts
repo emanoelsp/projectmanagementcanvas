@@ -5,7 +5,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     id: "step1",
     label: "Escopo",
     type: "input",
-    data: { label: "Escopo", content: "", description: "Defina em uma frase o produto, serviço ou solução que sua startup pretende criar." },
+    data: { label: "Escopo em uma frase", content: "", description: "Defina em uma frase o produto, serviço ou solução que sua startup pretende criar." },
     position: { x: 400, y: 50 },
     completed: false,
     locked: false,

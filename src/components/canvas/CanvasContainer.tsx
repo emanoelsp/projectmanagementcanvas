@@ -12,6 +12,8 @@ import ReactFlow, {
   NodeTypes,
   NodeMouseHandler,
   NodeDragHandler,
+  NodeChange,
+  applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
@@ -41,39 +43,63 @@ interface CanvasContainerProps {
 export function CanvasContainer({ initialNodes, initialEdges, teamName }: CanvasContainerProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-  const { unlockedNodes, nodeStyles, nodes: storeNodes, updateNodePosition } = useCanvasStore();
+  const { unlockedNodes, nodeStyles, nodes: storeNodes, updateNodePosition, updateNodeStyle } = useCanvasStore();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Reconstrói a lista de nós visíveis a partir do store sempre que unlockedNodes ou estilos mudam
-  // Preserva as posições atuais do ReactFlow para não perder drags
+  // Reconstrói nós visíveis a partir do store, preservando posições e dimensões do ReactFlow
   useEffect(() => {
     setNodes(prev => {
-      const positionMap: Record<string, { x: number; y: number }> = {};
-      prev.forEach(n => { positionMap[n.id] = n.position; });
+      const prevMap: Record<string, { pos: { x: number; y: number }; w?: number; h?: number }> = {};
+      prev.forEach(n => {
+        prevMap[n.id] = {
+          pos: n.position,
+          w: n.style?.width as number | undefined,
+          h: n.style?.height as number | undefined,
+        };
+      });
 
       return Object.values(storeNodes)
         .filter(node => unlockedNodes.includes(node.id))
-        .map(node => ({
-          ...node,
-          position: positionMap[node.id] || node.position || { x: 0, y: 0 },
-          data: {
-            ...node.data,
-            locked: false,
-            nodeStyle: nodeStyles[node.id] || DEFAULT_STYLE,
-          },
-        }));
+        .map(node => {
+          const style = nodeStyles[node.id] || DEFAULT_STYLE;
+          const saved = prevMap[node.id];
+          const width = saved?.w || style.width;
+          const height = saved?.h || style.height;
+          return {
+            ...node,
+            position: saved?.pos || node.position || { x: 0, y: 0 },
+            style: width ? { width, height } : undefined,
+            data: {
+              ...node.data,
+              locked: false,
+              nodeStyle: style,
+            },
+          };
+        });
     });
   }, [unlockedNodes, nodeStyles, storeNodes, setNodes]);
 
-  // Persiste posição no store após arrastar um nó
-  const onNodeDragStop: NodeDragHandler = useCallback(
-    (_, node) => {
-      updateNodePosition(node.id, node.position);
+  // Captura resize e posição ao fim da interação
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      onNodesChange(changes);
+      changes.forEach(change => {
+        if (change.type === "dimensions" && !change.resizing && change.dimensions) {
+          updateNodeStyle(change.id, {
+            width: change.dimensions.width,
+            height: change.dimensions.height,
+          });
+        }
+      });
     },
+    [onNodesChange, updateNodeStyle]
+  );
+
+  const onNodeDragStop: NodeDragHandler = useCallback(
+    (_, node) => { updateNodePosition(node.id, node.position); },
     [updateNodePosition]
   );
 
-  // Filtra arestas onde source ou target ainda não foi desbloqueado
   const visibleEdges = edges.filter(
     e => unlockedNodes.includes(e.source) && unlockedNodes.includes(e.target)
   );
@@ -87,7 +113,7 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
       <ReactFlow
         nodes={nodes}
         edges={visibleEdges}
-        onNodesChange={onNodesChange}
+        onNodesChange={handleNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         onNodeDragStop={onNodeDragStop}
@@ -98,7 +124,6 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         <Background color="#e2e8f0" gap={20} size={1} />
         <Controls />
 
-        {/* Post-it com nome do projeto */}
         <Panel position="top-right">
           <div className="bg-yellow-100 border border-yellow-300 rounded-lg px-4 py-2 shadow-sm min-w-[140px]">
             <p className="text-xs text-yellow-700 font-medium uppercase tracking-wide mb-0.5">Projeto</p>
@@ -106,7 +131,6 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
           </div>
         </Panel>
 
-        {/* Paleta de estilos flutuante */}
         {selectedNodeId && (
           <Panel position="top-left">
             <StylePalette nodeId={selectedNodeId} onClose={() => setSelectedNodeId(null)} />

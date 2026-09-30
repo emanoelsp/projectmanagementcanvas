@@ -4,13 +4,17 @@ import { CanvasNode, CanvasEdge } from "@/types";
 export type NodeStyle = {
   bgColor: string;
   borderColor: string;
+  fontColor: string;
   borderRadius: number; // 0 = sharp, 12 = rounded
   shape: "rectangle" | "diamond";
+  width?: number;
+  height?: number;
 };
 
 const DEFAULT_STYLE: NodeStyle = {
   bgColor: "#ffffff",
   borderColor: "#cbd5e1",
+  fontColor: "#64748b",
   borderRadius: 8,
   shape: "rectangle",
 };
