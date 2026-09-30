@@ -47,7 +47,7 @@ export default function RegisterPage() {
       } else {
         team = await createTeam(teamName, userId, [
           { email, name: user.name, userId },
-          ...members.map(m => ({ ...m, userId: undefined })),
+          ...members.map(m => ({ email: m.email, name: m.name })),
         ]);
       }
 
