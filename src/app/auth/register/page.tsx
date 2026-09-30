@@ -14,6 +14,7 @@ import { RegisterStep2 } from "@/components/features/auth/RegisterStep2";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +22,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const { setUser, setTeam } = useAuthStore();
 
-  const handleStep1 = (newEmail: string, newPassword: string) => {
+  const handleStep1 = (newName: string, newEmail: string, newPassword: string) => {
+    setName(newName);
     setEmail(newEmail);
     setPassword(newPassword);
     setStep(2);
@@ -35,7 +37,7 @@ export default function RegisterPage() {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const userId = credential.user.uid;
 
-      const user = await createUser(userId, email, members[0]?.name || "User", "student");
+      const user = await createUser(userId, email, name, "student");
       setUser(user);
 
       let team;

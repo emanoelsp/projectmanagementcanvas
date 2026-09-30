@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { registerStep1Schema } from "@/schemas/auth.schema";
 
 interface RegisterStep1Props {
-  onNext: (email: string, password: string) => void;
+  onNext: (name: string, email: string, password: string) => void;
   loading?: boolean;
 }
 
 export function RegisterStep1({ onNext, loading }: RegisterStep1Props) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,12 +25,13 @@ export function RegisterStep1({ onNext, loading }: RegisterStep1Props) {
 
     try {
       registerStep1Schema.parse({
+        name,
         email,
         password,
         confirmPassword,
       });
 
-      onNext(email, password);
+      onNext(name, email, password);
     } catch (err) {
       if (err instanceof Error) {
         const parsed = JSON.parse(err.message);
@@ -50,6 +52,19 @@ export function RegisterStep1({ onNext, loading }: RegisterStep1Props) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="name">Nome Completo</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="João Silva"
+              required
+            />
+            {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+          </div>
+
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
