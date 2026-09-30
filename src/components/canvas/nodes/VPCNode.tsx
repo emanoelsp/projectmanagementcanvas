@@ -61,7 +61,7 @@ export function VPCNode({ data, id }: VPCNodeProps) {
     }
   };
 
-  const taCls = "flex-1 w-full resize-none text-[11px] bg-transparent focus:outline-none placeholder:text-slate-200 leading-relaxed";
+  const taCls = "flex-1 w-full resize-none text-[11px] bg-transparent focus:outline-none placeholder:text-slate-300 leading-relaxed min-h-[60px]";
   const txtCls = "text-[11px] leading-relaxed break-words flex-1";
 
   const renderField = (key: keyof VPCFields, placeholder: string) =>
@@ -74,17 +74,20 @@ export function VPCNode({ data, id }: VPCNodeProps) {
         style={{ color: fontColor }}
       />
     ) : (
-      <p className={fields[key] ? txtCls : "text-[11px] italic text-slate-200 flex-1"} style={fields[key] ? { color: fontColor } : undefined}>
+      <p className={fields[key] ? txtCls : "text-[11px] italic text-slate-300 flex-1"} style={fields[key] ? { color: fontColor } : undefined}>
         {fields[key] || placeholder}
       </p>
     );
 
+  const squareSize = 400;
+  const circleSize = 400;
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={520} minHeight={480}>
+      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={900} minHeight={520}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-2 shrink-0">
+        <div className="flex items-center justify-between mb-3 shrink-0">
           <p className="text-xs font-bold uppercase tracking-wide" style={{ color: fontColor }}>
             {data.label}
           </p>
@@ -104,77 +107,169 @@ export function VPCNode({ data, id }: VPCNodeProps) {
           </div>
         </div>
 
-        {/* VPC Layout */}
-        <div className="flex gap-3 flex-1 min-h-0">
-          {/* Left: Value Proposition Square */}
-          <div className="flex-1 flex flex-col border-2 border-slate-300 rounded-lg overflow-hidden">
-            <div className="bg-slate-100 px-2 py-1 text-center border-b border-slate-200">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Proposta de Valor</p>
-            </div>
+        {/* VPC Classic Layout */}
+        <div className="flex items-center justify-center gap-0 flex-1 min-h-0">
+          {/* === LEFT: Value Proposition Square with diagonal sections === */}
+          <div className="relative shrink-0" style={{ width: squareSize, height: squareSize }}>
+            {/* Square border */}
+            <div
+              className="absolute inset-0 border-2 border-slate-700"
+              style={{ borderRadius: 4 }}
+            />
 
-            {/* Gain Creators */}
-            <div className="flex flex-col p-2 border-b border-slate-200 bg-emerald-50 flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 mb-1">
-                ↑ Criadores de Ganho
-              </p>
-              {renderField("gainCreators", "Como você cria benefícios para o cliente?")}
-            </div>
+            {/* Diagonal lines via SVG */}
+            <svg
+              className="absolute inset-0 pointer-events-none"
+              viewBox={`0 0 ${squareSize} ${squareSize}`}
+              width={squareSize}
+              height={squareSize}
+            >
+              {/* Top-right diagonal: from center to top-right */}
+              <line x1={squareSize * 0.38} y1={squareSize * 0.5} x2={squareSize} y2={0} stroke="#334155" strokeWidth="1.5" />
+              {/* Bottom-right diagonal: from center to bottom-right */}
+              <line x1={squareSize * 0.38} y1={squareSize * 0.5} x2={squareSize} y2={squareSize} stroke="#334155" strokeWidth="1.5" />
+            </svg>
 
-            {/* Products & Services */}
-            <div className="flex flex-col p-2 border-b border-slate-200 bg-indigo-50 flex-1">
+            {/* Products & Services - Left triangle */}
+            <div
+              className="absolute flex flex-col items-start justify-center p-3"
+              style={{
+                left: 8,
+                top: squareSize * 0.15,
+                width: squareSize * 0.35,
+                height: squareSize * 0.7,
+              }}
+            >
               <p className="text-[9px] font-bold uppercase tracking-wider text-indigo-600 mb-1">
-                Produtos &amp; Serviços
+                📦 Produtos & Serviços
               </p>
-              {renderField("products", "O que você oferece ao cliente?")}
+              {renderField("products", "O que você oferece?")}
             </div>
 
-            {/* Pain Relievers */}
-            <div className="flex flex-col p-2 bg-rose-50 flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-rose-600 mb-1">
-                ↓ Aliviadores de Dor
+            {/* Gain Creators - Top-right triangle */}
+            <div
+              className="absolute flex flex-col items-center p-2"
+              style={{
+                right: 8,
+                top: 10,
+                width: squareSize * 0.52,
+                height: squareSize * 0.38,
+              }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 mb-1">
+                📈 Criadores de Ganho
               </p>
-              {renderField("painRelievers", "Como você resolve os problemas do cliente?")}
+              {renderField("gainCreators", "Como você cria benefícios?")}
+            </div>
+
+            {/* Pain Relievers - Bottom-right triangle */}
+            <div
+              className="absolute flex flex-col items-center justify-end p-2"
+              style={{
+                right: 8,
+                bottom: 10,
+                width: squareSize * 0.52,
+                height: squareSize * 0.38,
+              }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-rose-600 mb-1">
+                💊 Aliviadores de Dor
+              </p>
+              {renderField("painRelievers", "Como resolve os problemas?")}
+            </div>
+
+            {/* Labels */}
+            <div
+              className="absolute text-[9px] font-bold uppercase text-slate-400 tracking-wider"
+              style={{ top: -18, left: 0 }}
+            >
+              Proposta de Valor
             </div>
           </div>
 
           {/* Arrow connector */}
-          <div className="flex flex-col items-center justify-center gap-1 shrink-0">
-            <div className="w-px flex-1 bg-slate-200" />
-            <span className="text-slate-300 text-lg">↔</span>
-            <div className="w-px flex-1 bg-slate-200" />
+          <div className="flex items-center px-2 shrink-0">
+            <svg width="40" height="20" viewBox="0 0 40 20">
+              <line x1="0" y1="10" x2="32" y2="10" stroke="#64748b" strokeWidth="2" />
+              <polygon points="30,5 40,10 30,15" fill="#64748b" />
+            </svg>
           </div>
 
-          {/* Right: Customer Circle */}
-          <div
-            className="flex-1 flex flex-col border-2 border-slate-300 overflow-hidden"
-            style={{ borderRadius: "50% / 10%" }}
-          >
-            <div className="bg-slate-100 px-2 py-1 text-center border-b border-slate-200">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Perfil do Cliente</p>
+          {/* === RIGHT: Customer Segment Circle with pie sections === */}
+          <div className="relative shrink-0" style={{ width: circleSize, height: circleSize }}>
+            {/* Circle border */}
+            <div
+              className="absolute inset-0 border-2 border-slate-700"
+              style={{ borderRadius: "50%" }}
+            />
+
+            {/* Pie dividers via SVG */}
+            <svg
+              className="absolute inset-0 pointer-events-none"
+              viewBox={`0 0 ${circleSize} ${circleSize}`}
+              width={circleSize}
+              height={circleSize}
+            >
+              {/* Horizontal line through center */}
+              <line x1={circleSize * 0.15} y1={circleSize * 0.5} x2={circleSize * 0.85} y2={circleSize * 0.5} stroke="#334155" strokeWidth="1.5" />
+              {/* Small inner circle */}
+              <circle cx={circleSize * 0.5} cy={circleSize * 0.5} r={circleSize * 0.12} fill="none" stroke="#334155" strokeWidth="1.5" />
+            </svg>
+
+            {/* Gains - Top half */}
+            <div
+              className="absolute flex flex-col items-center p-3"
+              style={{
+                top: 20,
+                left: circleSize * 0.15,
+                width: circleSize * 0.7,
+                height: circleSize * 0.35,
+              }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 mb-1">
+                😊 Ganhos
+              </p>
+              {renderField("gains", "O que o cliente quer alcançar?")}
             </div>
 
-            {/* Gains */}
-            <div className="flex flex-col p-2 border-b border-slate-200 bg-emerald-50 flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 mb-1 text-center">
-                ↑ Ganhos
+            {/* Customer Jobs - Center (inside inner circle area) */}
+            <div
+              className="absolute flex flex-col items-end justify-center pr-3"
+              style={{
+                top: circleSize * 0.3,
+                right: 10,
+                width: circleSize * 0.38,
+                height: circleSize * 0.4,
+              }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                📋 Tarefas do Cliente
               </p>
-              {renderField("gains", "O que o cliente quer alcançar ou ganhar?")}
+              {renderField("customerJobs", "O que precisa fazer?")}
             </div>
 
-            {/* Customer Jobs */}
-            <div className="flex flex-col p-2 border-b border-slate-200 bg-white flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1 text-center">
-                Tarefas do Cliente
+            {/* Pains - Bottom half */}
+            <div
+              className="absolute flex flex-col items-center justify-end p-3"
+              style={{
+                bottom: 20,
+                left: circleSize * 0.15,
+                width: circleSize * 0.7,
+                height: circleSize * 0.35,
+              }}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-rose-600 mb-1">
+                😟 Dores
               </p>
-              {renderField("customerJobs", "O que o cliente está tentando fazer?")}
+              {renderField("pains", "Quais frustrações e obstáculos?")}
             </div>
 
-            {/* Pains */}
-            <div className="flex flex-col p-2 bg-rose-50 flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-rose-600 mb-1 text-center">
-                ↓ Dores
-              </p>
-              {renderField("pains", "Quais frustrações e obstáculos o cliente enfrenta?")}
+            {/* Labels */}
+            <div
+              className="absolute text-[9px] font-bold uppercase text-slate-400 tracking-wider"
+              style={{ top: -18, left: 0 }}
+            >
+              Perfil do Cliente
             </div>
           </div>
         </div>

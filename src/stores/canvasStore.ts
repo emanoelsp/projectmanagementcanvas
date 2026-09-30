@@ -20,7 +20,8 @@ const DEFAULT_STYLE: NodeStyle = {
 };
 
 const UNLOCK_MAP: Record<string, string | string[]> = {
-  step1: "step2",
+  step1: ["step2", "step2_innovation"],
+  step2_innovation: "",
   // step2 handled conditionally based on paradigmChoice
   step2a: "",
   step2b: "",

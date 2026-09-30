@@ -19,6 +19,19 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     completed: false,
     locked: true,
   },
+  step2_innovation: {
+    id: "step2_innovation",
+    label: "Tipo de Inovação",
+    type: "innovation",
+    data: {
+      label: "Tipo de Inovação",
+      choice: null,
+      description: "Escolha o modelo de inovação da sua startup:\n\n🔒 Inovação Fechada:\nO processo de inovação ocorre exclusivamente dentro da empresa, com P&D interno e forte proteção de segredo industrial e propriedade intelectual.\n💡 Exemplo: Indústria farmacêutica desenvolvendo fórmula patenteada exclusiva ou desenvolvimento de hardware sob sigilo estrito.\n\n🌐 Inovação Aberta (Open Innovation):\nA empresa colabora com parceiros externos (universidades, startups, clientes, comunidade open-source) para acelerar a inovação e compartilhar valor.\n💡 Exemplo: Fintechs integradas via APIs de Open Finance, empresas com programas de aceleração de startups ou software de código aberto.",
+    },
+    position: { x: 740, y: 250 },
+    completed: false,
+    locked: true,
+  },
   step2a: {
     id: "step2a",
     label: "Oceano de Oportunidades",
@@ -148,6 +161,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
 
 export const INITIAL_EDGES: CanvasEdge[] = [
   { id: "e1-2", source: "step1", target: "step2", animated: true },
+  { id: "e2-innovation", source: "step2", target: "step2_innovation", sourceHandle: "right", targetHandle: "left", animated: true },
   { id: "e2-2a", source: "step2", target: "step2a", animated: true },
   { id: "e2-2b", source: "step2", target: "step2b", animated: true },
   { id: "e2-3", source: "step2", target: "step3", animated: true },
@@ -159,6 +173,19 @@ export const INITIAL_EDGES: CanvasEdge[] = [
   { id: "e6vpc-merge", source: "step6_vpc", target: "step6_merge", animated: true, targetHandle: "right" },
   { id: "e6merge-7", source: "step6_merge", target: "step7", animated: true },
   { id: "e7-8", source: "step7", target: "step8", animated: true },
+];
+
+export const INNOVATION_TYPE_OPTIONS = [
+  {
+    value: "fechada",
+    label: "Inovação Fechada",
+    description: "P&D interno, controle exclusivo sobre os ativos e segredo industrial.",
+  },
+  {
+    value: "aberta",
+    label: "Inovação Aberta",
+    description: "Colaboração com agentes externos (universidades, startups, parceiros) para cocriar.",
+  },
 ];
 
 export const PARADIGM_OPTIONS = [

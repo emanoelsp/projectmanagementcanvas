@@ -66,7 +66,7 @@ export function BMCNode({ data, id }: BMCNodeProps) {
   };
 
   const lblCls = "text-[9px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mb-1";
-  const taCls = "flex-1 w-full resize-none text-[11px] bg-transparent focus:outline-none placeholder:text-slate-200 leading-relaxed min-h-[48px]";
+  const taCls = "flex-1 w-full resize-none text-[11px] bg-transparent focus:outline-none placeholder:text-slate-200 leading-relaxed min-h-[80px]";
   const txtCls = "text-[11px] leading-relaxed break-words flex-1";
   const emptyCls = "text-[11px] text-slate-200 italic";
 
@@ -92,7 +92,7 @@ export function BMCNode({ data, id }: BMCNodeProps) {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={900} minHeight={480}>
+      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={900} minHeight={700}>
         {/* Header */}
         <div className="flex items-center justify-between mb-2 shrink-0">
           <p className="text-xs font-bold uppercase tracking-wide" style={{ color: fontColor }}>
@@ -122,7 +122,7 @@ export function BMCNode({ data, id }: BMCNodeProps) {
             gridTemplateAreas:
               '"p a vp cr s" "p r vp ch s" "c c c  rv rv"',
             gridTemplateColumns: "1fr 1fr 1.5fr 1fr 1fr",
-            gridTemplateRows: "1fr 1fr 90px",
+            gridTemplateRows: "1fr 1fr 180px",
           }}
         >
           {/* Key Partners */}

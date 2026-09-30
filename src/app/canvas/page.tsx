@@ -36,12 +36,28 @@ function CanvasContent() {
                   description: INITIAL_NODES[id].data.description,
                 },
               };
+            } else {
+              mergedNodes[id] = INITIAL_NODES[id];
             }
           });
+
+          // Garante compatibilidade caso step2 já estivesse desbloqueado
+          const updatedUnlocked = [...canvas.unlockedNodes];
+          if (updatedUnlocked.includes("step2") && !updatedUnlocked.includes("step2_innovation")) {
+            updatedUnlocked.push("step2_innovation");
+          }
+
+          // Garante que a nova edge e2-innovation exista
+          const mergedEdges = [...canvas.edges];
+          if (!mergedEdges.some(e => e.id === "e2-innovation")) {
+            const defaultEdge = INITIAL_EDGES.find(e => e.id === "e2-innovation");
+            if (defaultEdge) mergedEdges.push(defaultEdge);
+          }
+
           initCanvas(
             mergedNodes,
-            canvas.edges,
-            canvas.unlockedNodes,
+            mergedEdges,
+            updatedUnlocked,
             canvas.completedNodes,
             canvas.paradigmChoice,
             canvas.nodeStyles

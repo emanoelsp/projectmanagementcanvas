@@ -8,26 +8,23 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    baseURL: 'http://localhost:3099',
+    trace: 'on',
+    screenshot: 'on',
+    video: 'on',
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chromium'] },
-    },
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    command: 'npx next dev --port 3099',
+    url: 'http://localhost:3099',
+    reuseExistingServer: true,
     timeout: 120000,
   },
 });

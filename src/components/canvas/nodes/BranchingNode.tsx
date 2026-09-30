@@ -50,6 +50,7 @@ export function BranchingNode({ data, id }: BranchingNodeProps) {
         </div>
       </NodeWrapper>
       <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} id="right" />
     </>
   );
 }

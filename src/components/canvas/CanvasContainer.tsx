@@ -20,6 +20,7 @@ import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
 import { InputNode } from "./nodes/InputNode";
 import { BranchingNode } from "./nodes/BranchingNode";
+import { InnovationTypeNode } from "./nodes/InnovationTypeNode";
 import { MarketNode } from "./nodes/MarketNode";
 import { PyramidNode } from "./nodes/PyramidNode";
 import { FormatNode } from "./nodes/FormatNode";
@@ -31,6 +32,7 @@ import { StylePalette } from "./StylePalette";
 const nodeTypes: NodeTypes = {
   input: InputNode,
   branching: BranchingNode,
+  innovation: InnovationTypeNode,
   market: MarketNode,
   pyramid: PyramidNode,
   format: FormatNode,
