@@ -2,18 +2,15 @@
 
 import Link from "next/link";
 import { useAuthStore } from "@/stores/authStore";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { user, team } = useAuthStore();
 
   if (!user || !team) {
-    return (
-      <main className="flex items-center justify-center min-h-screen bg-slate-50">
-        <p className="text-slate-600">Carregando...</p>
-      </main>
-    );
+    return null;
   }
 
   return (
@@ -55,5 +52,13 @@ export default function DashboardPage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }
