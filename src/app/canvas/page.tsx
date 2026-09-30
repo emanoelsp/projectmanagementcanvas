@@ -88,6 +88,7 @@ function CanvasContent() {
         <CanvasContainer
           initialNodes={initialNodesArray}
           initialEdges={Object.values(INITIAL_EDGES)}
+          teamName={team.name}
         />
       </div>
     </main>

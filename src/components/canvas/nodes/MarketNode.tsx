@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Handle, Position } from "reactflow";
 import { useCanvasStore } from "@/stores/canvasStore";
 import { Button } from "@/components/ui/button";
+import { InfoTooltip } from "@/components/shared/InfoTooltip";
+import type { NodeStyle } from "@/stores/canvasStore";
 
 interface MarketNodeProps {
   data: {
@@ -11,8 +13,9 @@ interface MarketNodeProps {
     audience?: string;
     inspiration?: string;
     competitor?: string;
-    paradigmChoice?: "A" | "B" | null;
     locked?: boolean;
+    description?: string;
+    nodeStyle?: NodeStyle;
   };
   id: string;
 }
@@ -26,28 +29,23 @@ export function MarketNode({ data, id }: MarketNodeProps) {
 
   const handleSave = () => {
     if (audience.trim()) {
-      completeNode(id, { audience, inspiration, competitor });
+      completeNode(id, { ...data, audience, inspiration, competitor });
       setIsEditing(false);
     }
   };
 
-  if (data.locked) {
-    return (
-      <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-4 w-56 opacity-50">
-        <Handle type="target" position={Position.Top} />
-        <p className="text-xs font-medium text-slate-500 mb-2">🔒 Bloqueado</p>
-        <p className="text-sm font-medium truncate">{data.label}</p>
-        <Handle type="source" position={Position.Bottom} />
-      </div>
-    );
-  }
+  const style = data.nodeStyle;
+  const containerStyle = style
+    ? { backgroundColor: style.bgColor, borderColor: style.borderColor, borderRadius: style.borderRadius }
+    : {};
 
   return (
-    <div className="bg-white border-2 border-slate-300 rounded-lg p-4 w-72 shadow-sm hover:shadow-md transition-shadow">
+    <div className="border-2 p-4 w-72 shadow-sm hover:shadow-md transition-shadow" style={{ ...containerStyle, borderStyle: "solid" }}>
       <Handle type="target" position={Position.Top} />
 
-      <div className="mb-3">
+      <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold text-slate-500 uppercase">{data.label}</p>
+        {data.description && <InfoTooltip text={data.description} />}
       </div>
 
       {isEditing ? (
@@ -87,49 +85,22 @@ export function MarketNode({ data, id }: MarketNodeProps) {
           )}
 
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleSave} className="flex-1">
-              Salvar
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
+            <Button size="sm" onClick={handleSave} className="flex-1">Salvar</Button>
+            <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="flex-1">Cancelar</Button>
           </div>
         </div>
       ) : (
         <div>
           {audience ? (
-            <div className="text-sm text-slate-700 mb-3 p-2 bg-slate-50 rounded min-h-[60px] break-words">
-              <p className="font-medium text-xs text-slate-600 mb-1">Público-alvo:</p>
-              <p>{audience}</p>
-              {paradigmChoice === "A" && inspiration && (
-                <>
-                  <p className="font-medium text-xs text-slate-600 mt-2 mb-1">Inspiração:</p>
-                  <p className="text-sm">{inspiration}</p>
-                </>
-              )}
-              {paradigmChoice === "B" && competitor && (
-                <>
-                  <p className="font-medium text-xs text-slate-600 mt-2 mb-1">Concorrente:</p>
-                  <p className="text-sm">{competitor}</p>
-                </>
-              )}
+            <div className="text-sm text-slate-700 mb-3 p-2 bg-slate-50 rounded min-h-[60px] break-words space-y-1">
+              <p><span className="font-medium text-xs text-slate-600">Público-alvo: </span>{audience}</p>
+              {paradigmChoice === "A" && inspiration && <p><span className="font-medium text-xs text-slate-600">Inspiração: </span>{inspiration}</p>}
+              {paradigmChoice === "B" && competitor && <p><span className="font-medium text-xs text-slate-600">Concorrente: </span>{competitor}</p>}
             </div>
           ) : (
-            <div className="text-sm text-slate-400 mb-3 p-2 bg-slate-50 rounded min-h-[60px]">
-              Clique para preencher
-            </div>
+            <div className="text-sm text-slate-400 mb-3 p-2 bg-slate-50 rounded min-h-[60px]">Clique para preencher</div>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full"
-            onClick={() => setIsEditing(true)}
-          >
+          <Button size="sm" variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
             {audience ? "Editar" : "Preencher"}
           </Button>
         </div>
