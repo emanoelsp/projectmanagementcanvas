@@ -7,11 +7,13 @@ const TEAMS_COLLECTION = "PMC_teams";
 
 export async function createTeam(name: string, createdBy: string, members: TeamMember[]): Promise<Team> {
   const teamId = uuidv4();
+  const memberEmails = members.map(m => m.email);
   const team: Team = {
     id: teamId,
     name,
     createdBy,
     members,
+    memberEmails,
     createdAt: new Date(),
   };
 
@@ -31,6 +33,7 @@ export async function getTeam(teamId: string): Promise<Team | null> {
   return {
     ...data,
     id: teamId,
+    memberEmails: data.memberEmails || data.members?.map((m: TeamMember) => m.email) || [],
     createdAt: new Date(data.createdAt),
   } as Team;
 }
@@ -43,16 +46,22 @@ export async function addTeamMember(teamId: string, email: string, name: string,
   const existingIndex = updatedMembers.findIndex(m => m.email === email);
 
   if (existingIndex >= 0) {
-    updatedMembers[existingIndex].userId = userId;
+    updatedMembers[existingIndex] = { ...updatedMembers[existingIndex], userId };
   } else {
     updatedMembers.push({ email, name, userId });
   }
 
-  await updateDoc(doc(db, TEAMS_COLLECTION, teamId), { members: updatedMembers });
+  const updatedEmails = updatedMembers.map(m => m.email);
+
+  await updateDoc(doc(db, TEAMS_COLLECTION, teamId), {
+    members: updatedMembers,
+    memberEmails: updatedEmails,
+  });
 }
 
 export async function findTeamByMemberEmail(email: string): Promise<Team | null> {
-  const q = query(collection(db, TEAMS_COLLECTION), where("members", "array-contains", { email }));
+  // Query usando campo flat memberEmails para array-contains funcionar corretamente
+  const q = query(collection(db, TEAMS_COLLECTION), where("memberEmails", "array-contains", email));
   const docs = await getDocs(q);
 
   if (docs.empty) return null;
@@ -61,17 +70,19 @@ export async function findTeamByMemberEmail(email: string): Promise<Team | null>
   return {
     ...data,
     id: docs.docs[0].id,
+    memberEmails: data.memberEmails || [],
     createdAt: new Date(data.createdAt),
   } as Team;
 }
 
 export async function getAllTeams(): Promise<Team[]> {
   const docs = await getDocs(collection(db, TEAMS_COLLECTION));
-  return docs.docs.map(doc => {
-    const data = doc.data();
+  return docs.docs.map(d => {
+    const data = d.data();
     return {
       ...data,
-      id: doc.id,
+      id: d.id,
+      memberEmails: data.memberEmails || data.members?.map((m: TeamMember) => m.email) || [],
       createdAt: new Date(data.createdAt),
     } as Team;
   });

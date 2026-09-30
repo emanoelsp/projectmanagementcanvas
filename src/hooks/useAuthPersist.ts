@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/authStore";
-import { getUser } from "@/services/user.service";
-import { getTeam } from "@/services/team.service";
+import { getUser, updateUserTeam } from "@/services/user.service";
+import { getTeam, findTeamByMemberEmail, addTeamMember } from "@/services/team.service";
 
 export function useAuthPersist() {
   useEffect(() => {
@@ -19,6 +19,17 @@ export function useAuthPersist() {
             if (user.teamId) {
               const team = await getTeam(user.teamId);
               if (team) useAuthStore.setState({ team });
+            } else {
+              // Buscar equipe pelo email — usuário pode ter sido pré-adicionado como membro
+              const team = await findTeamByMemberEmail(user.email);
+              if (team) {
+                await updateUserTeam(user.id, team.id);
+                await addTeamMember(team.id, user.email, user.name, user.id);
+                useAuthStore.setState({
+                  user: { ...user, teamId: team.id },
+                  team,
+                });
+              }
             }
           } else {
             useAuthStore.setState({ loading: false });

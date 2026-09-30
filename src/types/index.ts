@@ -18,6 +18,7 @@ export interface Team {
   name: string;
   createdBy: string;
   members: TeamMember[];
+  memberEmails: string[];
   createdAt: Date;
 }
 
