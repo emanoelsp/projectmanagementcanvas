@@ -48,12 +48,17 @@ export function PyramidNode({ data, id }: PyramidNodeProps) {
     data.somField || (data.som ? { description: data.som, size: "", source: "" } : emptyField())
   );
   const [isEditing, setIsEditing] = useState(false);
-  const { completeNode } = useCanvasStore();
+  const { completeNode, updateNodeData } = useCanvasStore();
   const fontColor = data.nodeStyle?.fontColor ?? "#64748b";
 
   const handleSave = () => {
-    if (tamField.description.trim() && samField.description.trim() && somField.description.trim()) {
-      completeNode(id, { ...data, tamField, samField, somField });
+    if (tamField.description.trim() || samField.description.trim() || somField.description.trim()) {
+      const nextData = { ...data, tamField, samField, somField };
+      if (tamField.description.trim() && samField.description.trim() && somField.description.trim()) {
+        completeNode(id, nextData);
+      } else {
+        updateNodeData(id, nextData);
+      }
       setIsEditing(false);
     }
   };

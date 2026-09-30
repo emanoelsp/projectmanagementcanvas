@@ -47,7 +47,7 @@ export function VPCNode({ data, id }: VPCNodeProps) {
     pains: data.pains || "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const { completeNode } = useCanvasStore();
+  const { completeNode, updateNodeData } = useCanvasStore();
   const fontColor = data.nodeStyle?.fontColor ?? "#374151";
   const filledCount = Object.values(fields).filter(v => v.trim().length > 0).length;
 
@@ -55,8 +55,10 @@ export function VPCNode({ data, id }: VPCNodeProps) {
     setFields(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleSave = () => {
-    if (filledCount >= 4) {
-      completeNode(id, { ...data, ...fields });
+    if (filledCount > 0) {
+      const nextData = { ...data, ...fields };
+      if (filledCount >= 4) completeNode(id, nextData);
+      else updateNodeData(id, nextData);
       setIsEditing(false);
     }
   };
@@ -95,7 +97,7 @@ export function VPCNode({ data, id }: VPCNodeProps) {
             {isEditing ? (
               <>
                 <span className="text-[11px] text-slate-400">{filledCount}/6</span>
-                <Button size="sm" onClick={handleSave} disabled={filledCount < 4}>Salvar</Button>
+                <Button size="sm" onClick={handleSave} disabled={filledCount === 0}>Salvar</Button>
                 <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
               </>
             ) : (
@@ -124,10 +126,9 @@ export function VPCNode({ data, id }: VPCNodeProps) {
               width={squareSize}
               height={squareSize}
             >
-              {/* Top-right diagonal: from center to top-right */}
-              <line x1={squareSize * 0.38} y1={squareSize * 0.5} x2={squareSize} y2={0} stroke="#334155" strokeWidth="1.5" />
-              {/* Bottom-right diagonal: from center to bottom-right */}
-              <line x1={squareSize * 0.38} y1={squareSize * 0.5} x2={squareSize} y2={squareSize} stroke="#334155" strokeWidth="1.5" />
+              {/* Diagonais do padrão: dos cantos esquerdos ao centro */}
+              <line x1={0} y1={0} x2={squareSize * 0.55} y2={squareSize * 0.5} stroke="#334155" strokeWidth="1.5" />
+              <line x1={0} y1={squareSize} x2={squareSize * 0.55} y2={squareSize * 0.5} stroke="#334155" strokeWidth="1.5" />
             </svg>
 
             {/* Products & Services - Left triangle */}
@@ -212,6 +213,8 @@ export function VPCNode({ data, id }: VPCNodeProps) {
             >
               {/* Horizontal line through center */}
               <line x1={circleSize * 0.15} y1={circleSize * 0.5} x2={circleSize * 0.85} y2={circleSize * 0.5} stroke="#334155" strokeWidth="1.5" />
+              <line x1={circleSize * 0.5} y1={circleSize * 0.5} x2={circleSize * 0.86} y2={circleSize * 0.14} stroke="#334155" strokeWidth="1.5" />
+              <line x1={circleSize * 0.5} y1={circleSize * 0.5} x2={circleSize * 0.86} y2={circleSize * 0.86} stroke="#334155" strokeWidth="1.5" />
               {/* Small inner circle */}
               <circle cx={circleSize * 0.5} cy={circleSize * 0.5} r={circleSize * 0.12} fill="none" stroke="#334155" strokeWidth="1.5" />
             </svg>

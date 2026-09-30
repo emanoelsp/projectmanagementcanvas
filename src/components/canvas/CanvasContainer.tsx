@@ -18,6 +18,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
+import { clampNodeDimensions } from "@/lib/canvas-config";
 import { InputNode } from "./nodes/InputNode";
 import { BranchingNode } from "./nodes/BranchingNode";
 import { InnovationTypeNode } from "./nodes/InnovationTypeNode";
@@ -76,8 +77,13 @@ function CanvasFlow({ initialNodes, initialEdges, teamName }: CanvasContainerPro
         .map(node => {
           const style = nodeStyles[node.id] || DEFAULT_STYLE;
           const saved = prevMap[node.id];
-          const width = saved?.width || style.width;
-          const height = saved?.height || style.height;
+          const dims = clampNodeDimensions(
+            node.type,
+            saved?.width || style.width,
+            saved?.height || style.height
+          );
+          const width = dims.width;
+          const height = dims.height;
           return {
             ...node,
             position: saved?.pos || node.position || { x: 0, y: 0 },

@@ -7,7 +7,7 @@ import { useCanvasStore } from "@/stores/canvasStore";
 import { getCanvas } from "@/services/canvas.service";
 import { CanvasContainer } from "@/components/canvas/CanvasContainer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { INITIAL_NODES, INITIAL_EDGES } from "@/lib/canvas-config";
+import { INITIAL_NODES, INITIAL_EDGES, clampNodeDimensions } from "@/lib/canvas-config";
 import { useCanvasSync } from "@/hooks/useCanvasSync";
 import { Button } from "@/components/ui/button";
 
@@ -29,8 +29,20 @@ function CanvasContent() {
           const mergedNodes = { ...canvas.nodes };
           Object.keys(INITIAL_NODES).forEach((id) => {
             if (mergedNodes[id]) {
+              const currentPos = mergedNodes[id].position;
+              const nextPos = INITIAL_NODES[id].position;
+              const oldLayoutY: Record<string, number> = {
+                step6_merge: 2060,
+                step7: 2300,
+                step8: 2550,
+              };
+              const shouldMoveInnovation =
+                id === "step2_innovation" && currentPos?.x === 740;
+              const shouldLift =
+                oldLayoutY[id] != null && currentPos?.y === oldLayoutY[id];
               mergedNodes[id] = {
                 ...mergedNodes[id],
+                position: shouldLift || shouldMoveInnovation ? nextPos : currentPos,
                 data: {
                   ...mergedNodes[id].data,
                   description: INITIAL_NODES[id].data.description,
@@ -101,12 +113,13 @@ function CanvasContent() {
     .filter(node => unlockedNodes.includes(node.id))
     .map(node => {
       const style = nodeStyles[node.id];
+      const dims = clampNodeDimensions(node.type, style?.width, style?.height);
       return {
         ...node,
         position: node.position || { x: 0, y: 0 },
-        width: style?.width,
-        height: style?.height,
-        style: style?.width ? { width: style.width, height: style.height } : undefined,
+        width: dims.width,
+        height: dims.height,
+        style: dims.width ? { width: dims.width, height: dims.height } : undefined,
         data: {
           ...node.data,
           locked: false,

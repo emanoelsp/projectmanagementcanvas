@@ -269,7 +269,7 @@ test.describe('E2E Completo: Registro → Canvas → Preenchimento Total', () =>
     await page.waitForTimeout(500);
     await closeTooltip(page);
 
-    // Verifica que o BMC tem altura aumentada (minHeight: 700)
+    // Verifica que o BMC tem altura aumentada (minHeight: 920)
     const bmcNode = page.locator('.react-flow__node[data-id="step6"]');
     await screenshot(page, '19-step6-bmc-before-fill');
 

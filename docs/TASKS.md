@@ -16,6 +16,9 @@
 
 ## Concluído
 
+- [x] Tooltip de ajuda do canvas em portal (sem corte pela caixinha)
+- [x] Business Model Canvas com altura mínima maior (920px)
+
 - [x] Setup Next.js + TypeScript + Tailwind
 - [x] Configurar Firebase + Firestore
 - [x] Criar componentes UI (Button, Input, Label, Card)

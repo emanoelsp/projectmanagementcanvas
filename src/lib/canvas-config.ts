@@ -28,7 +28,8 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
       choice: null,
       description: "Escolha o modelo de inovação da sua startup:\n\n🔒 Inovação Fechada:\nO processo de inovação ocorre exclusivamente dentro da empresa, com P&D interno e forte proteção de segredo industrial e propriedade intelectual.\n💡 Exemplo: Indústria farmacêutica desenvolvendo fórmula patenteada exclusiva ou desenvolvimento de hardware sob sigilo estrito.\n\n🌐 Inovação Aberta (Open Innovation):\nA empresa colabora com parceiros externos (universidades, startups, clientes, comunidade open-source) para acelerar a inovação e compartilhar valor.\n💡 Exemplo: Fintechs integradas via APIs de Open Finance, empresas com programas de aceleração de startups ou software de código aberto.",
     },
-    position: { x: 740, y: 250 },
+    // Mantém espaço visual entre o Paradigma e o bloco de inovação para que o conector permaneça visível.
+    position: { x: 780, y: 250 },
     completed: false,
     locked: true,
   },
@@ -135,7 +136,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     label: "Estratégia Unificada",
     type: "merger",
     data: { label: "Estratégia Unificada" },
-    position: { x: 620, y: 2060 },
+    position: { x: 620, y: 2480 },
     completed: false,
     locked: true,
   },
@@ -144,7 +145,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     label: "Stack Tecnológica",
     type: "input",
     data: { label: "Stack Tecnológica", content: "", description: "Liste as tecnologias, plataformas e ferramentas que serão usadas para construir a solução." },
-    position: { x: 620, y: 2300 },
+    position: { x: 620, y: 2720 },
     completed: false,
     locked: true,
   },
@@ -153,7 +154,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     label: "Protótipo Front-end",
     type: "input",
     data: { label: "Protótipo Front-end", content: "", description: "Descreva ou cole o link do protótipo visual da interface (Figma, wireframe etc.)." },
-    position: { x: 620, y: 2550 },
+    position: { x: 620, y: 2970 },
     completed: false,
     locked: true,
   },
@@ -217,3 +218,32 @@ export const REVENUE_FORMATS = [
   "Freemium",
   "Venda Direta",
 ];
+
+export const NODE_MIN_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  bmc: { width: 900, height: 920 },
+  innovation: { width: 300, height: 220 },
+};
+
+export function clampNodeDimensions(
+  type: string,
+  width?: number | null,
+  height?: number | null
+): { width?: number; height?: number } {
+  const min = NODE_MIN_DIMENSIONS[type];
+  if (!min) {
+    return {
+      ...(width ? { width } : {}),
+      ...(height ? { height } : {}),
+    };
+  }
+  if (type === "innovation") {
+    return {
+      width: Math.min(Math.max(width ?? min.width, min.width), 360),
+      height: Math.max(height ?? min.height, min.height),
+    };
+  }
+  return {
+    width: Math.max(width ?? 0, min.width),
+    height: Math.max(height ?? 0, min.height),
+  };
+}

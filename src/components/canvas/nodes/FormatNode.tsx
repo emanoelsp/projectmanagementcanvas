@@ -36,7 +36,7 @@ export function FormatNode({ data, id }: FormatNodeProps) {
     ""
   );
   const [isEditing, setIsEditing] = useState(false);
-  const { completeNode } = useCanvasStore();
+  const { completeNode, updateNodeData } = useCanvasStore();
   const fontColor = data.nodeStyle?.fontColor ?? "#64748b";
 
   const toggle = (val: string, type: "business" | "revenue") => {
@@ -59,14 +59,16 @@ export function FormatNode({ data, id }: FormatNodeProps) {
       .filter(Boolean);
     const allRevenue = [...new Set([...standardRevenue, ...customRevenueItems])];
 
-    if (allBusiness.length > 0 && allRevenue.length > 0) {
-      completeNode(id, {
+    if (allBusiness.length > 0 || allRevenue.length > 0) {
+      const nextData = {
         ...data,
         businessFormat: allBusiness,
         revenueFormats: allRevenue,
         otherBusiness,
         otherRevenue,
-      });
+      };
+      if (allBusiness.length > 0 && allRevenue.length > 0) completeNode(id, nextData);
+      else updateNodeData(id, nextData);
       setIsEditing(false);
     }
   };

@@ -25,12 +25,14 @@ export function MarketNode({ data, id }: MarketNodeProps) {
   const [inspiration, setInspiration] = useState(data.inspiration || "");
   const [competitor, setCompetitor] = useState(data.competitor || "");
   const [isEditing, setIsEditing] = useState(false);
-  const { completeNode, paradigmChoice } = useCanvasStore();
+  const { completeNode, updateNodeData, paradigmChoice } = useCanvasStore();
   const fontColor = data.nodeStyle?.fontColor ?? "#64748b";
 
   const handleSave = () => {
-    if (audience.trim()) {
-      completeNode(id, { ...data, audience, inspiration, competitor });
+    if (audience.trim() || inspiration.trim() || competitor.trim()) {
+      const nextData = { ...data, audience, inspiration, competitor };
+      if (audience.trim()) completeNode(id, nextData);
+      else updateNodeData(id, nextData);
       setIsEditing(false);
     }
   };

@@ -31,7 +31,7 @@ export function InnovationTypeNode({ data, id }: InnovationTypeNodeProps) {
   return (
     <>
       <Handle type="target" position={Position.Left} id="left" />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={260} minHeight={170}>
+      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={300} minHeight={220} maxWidth={360}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs font-semibold uppercase" style={{ color: fontColor }}>{data.label}</p>
           {data.description && <InfoTooltip text={data.description} />}

@@ -8,6 +8,7 @@ interface NodeWrapperProps {
   children: React.ReactNode;
   minWidth?: number;
   minHeight?: number;
+  maxWidth?: number;
   className?: string;
 }
 
@@ -16,12 +17,18 @@ export function NodeWrapper({
   children,
   minWidth = 200,
   minHeight = 120,
+  maxWidth,
   className = "",
 }: NodeWrapperProps) {
   const bg = nodeStyle?.bgColor ?? "#ffffff";
   const border = nodeStyle?.borderColor ?? "#cbd5e1";
   const radius = nodeStyle?.borderRadius ?? 8;
   const shape = nodeStyle?.shape ?? "rectangle";
+
+  const resolvedWidth = nodeStyle?.width != null ? Math.max(nodeStyle.width, minWidth) : undefined;
+  const resolvedHeight = nodeStyle?.height != null ? Math.max(nodeStyle.height, minHeight) : undefined;
+
+  const fillHeight = resolvedHeight != null;
 
   const outerStyle: React.CSSProperties = {
     backgroundColor: bg,
@@ -31,14 +38,18 @@ export function NodeWrapper({
     borderRadius: radius,
     minWidth,
     minHeight,
-    width: nodeStyle?.width,
-    height: nodeStyle?.height,
+    width: resolvedWidth,
+    height: resolvedHeight,
+    ...(fillHeight ? { display: "flex", flexDirection: "column" } : {}),
     transform: shape === "diamond" ? "rotate(45deg)" : undefined,
   };
 
   const innerStyle: React.CSSProperties = {
     transform: shape === "diamond" ? "rotate(-45deg)" : undefined,
     padding: "1rem",
+    ...(fillHeight
+      ? { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }
+      : {}),
   };
 
   return (
@@ -46,6 +57,7 @@ export function NodeWrapper({
       <NodeResizer
         minWidth={minWidth}
         minHeight={minHeight}
+        maxWidth={maxWidth}
         lineStyle={{ borderColor: "transparent" }}
         handleStyle={{ backgroundColor: "transparent", borderColor: "transparent", width: 14, height: 14 }}
       />

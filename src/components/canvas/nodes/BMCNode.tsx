@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Handle, Position } from "reactflow";
-import { useCanvasStore } from "@/stores/canvasStore";
+import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
 import { Button } from "@/components/ui/button";
 import { InfoTooltip } from "@/components/shared/InfoTooltip";
 import { NodeWrapper } from "./NodeWrapper";
@@ -51,7 +51,7 @@ export function BMCNode({ data, id }: BMCNodeProps) {
     revenueStreams: data.revenueStreams || "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const { completeNode } = useCanvasStore();
+  const { completeNode, updateNodeData } = useCanvasStore();
   const fontColor = data.nodeStyle?.fontColor ?? "#374151";
   const filledCount = Object.values(fields).filter(v => v.trim().length > 0).length;
 
@@ -59,8 +59,10 @@ export function BMCNode({ data, id }: BMCNodeProps) {
     setFields(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleSave = () => {
-    if (filledCount >= 5) {
-      completeNode(id, { ...data, ...fields });
+    if (filledCount > 0) {
+      const nextData = { ...data, ...fields };
+      if (filledCount >= 5) completeNode(id, nextData);
+      else updateNodeData(id, nextData);
       setIsEditing(false);
     }
   };
@@ -92,7 +94,16 @@ export function BMCNode({ data, id }: BMCNodeProps) {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={900} minHeight={700}>
+      <NodeWrapper
+        nodeStyle={{
+          ...DEFAULT_STYLE,
+          ...data.nodeStyle,
+          width: Math.max(data.nodeStyle?.width ?? 900, 900),
+          height: Math.max(data.nodeStyle?.height ?? 920, 920),
+        }}
+        minWidth={900}
+        minHeight={920}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-2 shrink-0">
           <p className="text-xs font-bold uppercase tracking-wide" style={{ color: fontColor }}>
@@ -102,7 +113,7 @@ export function BMCNode({ data, id }: BMCNodeProps) {
             {isEditing ? (
               <>
                 <span className="text-[11px] text-slate-400">{filledCount}/9</span>
-                <Button size="sm" onClick={handleSave} disabled={filledCount < 5}>Salvar</Button>
+                <Button size="sm" onClick={handleSave} disabled={filledCount === 0}>Salvar</Button>
                 <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
               </>
             ) : (
@@ -116,13 +127,13 @@ export function BMCNode({ data, id }: BMCNodeProps) {
 
         {/* BMC Grid — Osterwalder layout */}
         <div
-          className="flex-1 border border-slate-200 rounded overflow-hidden"
+          className="flex-1 min-h-0 border border-slate-200 rounded overflow-hidden"
           style={{
             display: "grid",
             gridTemplateAreas:
               '"p a vp cr s" "p r vp ch s" "c c c  rv rv"',
             gridTemplateColumns: "1fr 1fr 1.5fr 1fr 1fr",
-            gridTemplateRows: "1fr 1fr 180px",
+            gridTemplateRows: "minmax(260px, 1fr) minmax(260px, 1fr) minmax(220px, 0.7fr)",
           }}
         >
           {/* Key Partners */}
