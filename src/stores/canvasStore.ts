@@ -26,8 +26,11 @@ const UNLOCK_MAP: Record<string, string | string[]> = {
   step2b: "",
   step3: "step4",
   step4: "step5",
-  step5: "step6",
-  step6: "step7",
+  step5: ["step6", "step6_vpc"],
+  // step6 and step6_vpc handled together: both must complete to unlock step6_merge
+  step6: "",
+  step6_vpc: "",
+  step6_merge: "step7",
   step7: "step8",
   step8: "",
 };
@@ -75,6 +78,12 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         // Desbloqueia apenas o branch correspondente à escolha do paradigma
         const choice = data.choice || state.paradigmChoice;
         toUnlock = choice === "A" ? ["step2a", "step3"] : ["step2b", "step3"];
+      } else if (nodeId === "step6" || nodeId === "step6_vpc") {
+        // Ambos devem estar concluídos para desbloquear step6_merge
+        const other = nodeId === "step6" ? "step6_vpc" : "step6";
+        if (state.completedNodes.includes(other)) {
+          toUnlock = ["step6_merge"];
+        }
       } else {
         const nextIds = UNLOCK_MAP[nodeId];
         toUnlock = Array.isArray(nextIds)

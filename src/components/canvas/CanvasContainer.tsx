@@ -13,7 +13,6 @@ import ReactFlow, {
   NodeMouseHandler,
   NodeDragHandler,
   NodeChange,
-  applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
@@ -23,6 +22,8 @@ import { MarketNode } from "./nodes/MarketNode";
 import { PyramidNode } from "./nodes/PyramidNode";
 import { FormatNode } from "./nodes/FormatNode";
 import { BMCNode } from "./nodes/BMCNode";
+import { VPCNode } from "./nodes/VPCNode";
+import { MergerNode } from "./nodes/MergerNode";
 import { StylePalette } from "./StylePalette";
 
 const nodeTypes: NodeTypes = {
@@ -32,6 +33,8 @@ const nodeTypes: NodeTypes = {
   pyramid: PyramidNode,
   format: FormatNode,
   bmc: BMCNode,
+  vpc: VPCNode,
+  merger: MergerNode,
 };
 
 interface CanvasContainerProps {

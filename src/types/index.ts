@@ -37,6 +37,8 @@ export interface CanvasEdge {
   source: string;
   target: string;
   animated?: boolean;
+  targetHandle?: string;
+  sourceHandle?: string;
 }
 
 export interface Canvas {

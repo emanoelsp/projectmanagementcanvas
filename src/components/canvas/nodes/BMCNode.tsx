@@ -8,41 +8,55 @@ import { InfoTooltip } from "@/components/shared/InfoTooltip";
 import { NodeWrapper } from "./NodeWrapper";
 import type { NodeStyle } from "@/stores/canvasStore";
 
-const BMC_FIELDS = [
-  { key: "keyPartners", label: "Parceiros-Chave" },
-  { key: "keyActivities", label: "Atividades-Chave" },
-  { key: "keyResources", label: "Recursos-Chave" },
-  { key: "valueProposition", label: "Proposta de Valor" },
-  { key: "customerSegments", label: "Segmentos de Cliente" },
-  { key: "customerRelationships", label: "Relacionamento com Cliente" },
-  { key: "channels", label: "Canais" },
-  { key: "costStructure", label: "Estrutura de Custos" },
-  { key: "revenueStreams", label: "Fluxos de Receita" },
-];
-
 interface BMCNodeProps {
   data: {
     label: string;
-    keyPartners?: string; keyActivities?: string; keyResources?: string;
-    valueProposition?: string; customerSegments?: string; customerRelationships?: string;
-    channels?: string; costStructure?: string; revenueStreams?: string;
+    keyPartners?: string;
+    keyActivities?: string;
+    keyResources?: string;
+    valueProposition?: string;
+    customerSegments?: string;
+    customerRelationships?: string;
+    channels?: string;
+    costStructure?: string;
+    revenueStreams?: string;
     description?: string;
     nodeStyle?: NodeStyle;
   };
   id: string;
 }
 
+type BMCFields = {
+  keyPartners: string;
+  keyActivities: string;
+  keyResources: string;
+  valueProposition: string;
+  customerSegments: string;
+  customerRelationships: string;
+  channels: string;
+  costStructure: string;
+  revenueStreams: string;
+};
+
 export function BMCNode({ data, id }: BMCNodeProps) {
-  const [fields, setFields] = useState({
-    keyPartners: data.keyPartners || "", keyActivities: data.keyActivities || "",
-    keyResources: data.keyResources || "", valueProposition: data.valueProposition || "",
-    customerSegments: data.customerSegments || "", customerRelationships: data.customerRelationships || "",
-    channels: data.channels || "", costStructure: data.costStructure || "", revenueStreams: data.revenueStreams || "",
+  const [fields, setFields] = useState<BMCFields>({
+    keyPartners: data.keyPartners || "",
+    keyActivities: data.keyActivities || "",
+    keyResources: data.keyResources || "",
+    valueProposition: data.valueProposition || "",
+    customerSegments: data.customerSegments || "",
+    customerRelationships: data.customerRelationships || "",
+    channels: data.channels || "",
+    costStructure: data.costStructure || "",
+    revenueStreams: data.revenueStreams || "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const { completeNode } = useCanvasStore();
-  const fontColor = data.nodeStyle?.fontColor ?? "#64748b";
+  const fontColor = data.nodeStyle?.fontColor ?? "#374151";
   const filledCount = Object.values(fields).filter(v => v.trim().length > 0).length;
+
+  const upd = (key: keyof BMCFields) => (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setFields(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleSave = () => {
     if (filledCount >= 5) {
@@ -51,52 +65,111 @@ export function BMCNode({ data, id }: BMCNodeProps) {
     }
   };
 
+  const lblCls = "text-[9px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mb-1";
+  const taCls = "flex-1 w-full resize-none text-[11px] bg-transparent focus:outline-none placeholder:text-slate-200 leading-relaxed min-h-[48px]";
+  const txtCls = "text-[11px] leading-relaxed break-words flex-1";
+  const emptyCls = "text-[11px] text-slate-200 italic";
+
+  const cell = (key: keyof BMCFields, label: string, placeholder: string, accent?: string) => (
+    <div className="flex flex-col h-full p-2">
+      <p className={lblCls} style={accent ? { color: accent } : undefined}>{label}</p>
+      {isEditing ? (
+        <textarea
+          value={fields[key]}
+          onChange={upd(key)}
+          placeholder={placeholder}
+          className={taCls}
+          style={{ color: fontColor }}
+        />
+      ) : fields[key] ? (
+        <p className={txtCls} style={{ color: fontColor }}>{fields[key]}</p>
+      ) : (
+        <p className={emptyCls}>{placeholder}</p>
+      )}
+    </div>
+  );
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={300} minHeight={200}>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold uppercase" style={{ color: fontColor }}>{data.label}</p>
-          {data.description && <InfoTooltip text={data.description} />}
+      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={900} minHeight={480}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-2 shrink-0">
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: fontColor }}>
+            {data.label}
+          </p>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <span className="text-[11px] text-slate-400">{filledCount}/9</span>
+                <Button size="sm" onClick={handleSave} disabled={filledCount < 5}>Salvar</Button>
+                <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
+              </>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
+                {filledCount > 0 ? `Editar (${filledCount}/9)` : "Preencher"}
+              </Button>
+            )}
+            {data.description && <InfoTooltip text={data.description} />}
+          </div>
         </div>
 
-        {isEditing ? (
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-            {BMC_FIELDS.map(field => (
-              <div key={field.key}>
-                <label className="text-xs font-medium block mb-0.5" style={{ color: fontColor }}>{field.label}</label>
-                <textarea
-                  value={fields[field.key as keyof typeof fields]}
-                  onChange={e => setFields(prev => ({ ...prev, [field.key]: e.target.value }))}
-                  placeholder="Descreva..."
-                  className="w-full p-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[35px]"
-                />
-              </div>
-            ))}
-            <div className="flex gap-2 sticky bottom-0 bg-white/80 pt-1">
-              <Button size="sm" onClick={handleSave} className="flex-1">Salvar ({filledCount}/9)</Button>
-              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="flex-1">Cancelar</Button>
-            </div>
+        {/* BMC Grid — Osterwalder layout */}
+        <div
+          className="flex-1 border border-slate-200 rounded overflow-hidden"
+          style={{
+            display: "grid",
+            gridTemplateAreas:
+              '"p a vp cr s" "p r vp ch s" "c c c  rv rv"',
+            gridTemplateColumns: "1fr 1fr 1.5fr 1fr 1fr",
+            gridTemplateRows: "1fr 1fr 90px",
+          }}
+        >
+          {/* Key Partners */}
+          <div style={{ gridArea: "p", borderRight: "1px solid #e2e8f0" }}>
+            {cell("keyPartners", "Parceiros-Chave", "Quem são seus parceiros estratégicos?")}
           </div>
-        ) : (
-          <div>
-            {filledCount > 0 ? (
-              <div className="text-xs mb-2 p-2 bg-white/50 rounded grid grid-cols-2 gap-1.5 max-h-52 overflow-y-auto">
-                {BMC_FIELDS.map(field => fields[field.key as keyof typeof fields] && (
-                  <div key={field.key} className="border-l-2 border-blue-400 pl-1.5">
-                    <p className="font-medium" style={{ color: fontColor }}>{field.label}</p>
-                    <p className="line-clamp-2" style={{ color: fontColor }}>{fields[field.key as keyof typeof fields]}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-xs mb-2 p-2 bg-white/30 rounded opacity-60" style={{ color: fontColor }}>Preencha pelo menos 5 campos do BMC</div>
-            )}
-            <Button size="sm" variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
-              {filledCount > 0 ? `Editar (${filledCount}/9)` : "Preencher"}
-            </Button>
+
+          {/* Key Activities */}
+          <div style={{ gridArea: "a", borderRight: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0" }}>
+            {cell("keyActivities", "Atividades-Chave", "O que sua empresa faz de mais importante?")}
           </div>
-        )}
+
+          {/* Value Proposition */}
+          <div style={{ gridArea: "vp", borderRight: "1px solid #e2e8f0", background: "#f8f9ff" }}>
+            {cell("valueProposition", "Proposta de Valor", "Qual valor único você entrega ao cliente?", "#4f46e5")}
+          </div>
+
+          {/* Customer Relationships */}
+          <div style={{ gridArea: "cr", borderRight: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0" }}>
+            {cell("customerRelationships", "Relacionamento", "Como você se relaciona com seus clientes?")}
+          </div>
+
+          {/* Customer Segments */}
+          <div style={{ gridArea: "s" }}>
+            {cell("customerSegments", "Segmentos de Clientes", "Para quem você cria valor?")}
+          </div>
+
+          {/* Key Resources */}
+          <div style={{ gridArea: "r", borderRight: "1px solid #e2e8f0" }}>
+            {cell("keyResources", "Recursos-Chave", "Quais recursos são indispensáveis?")}
+          </div>
+
+          {/* Channels */}
+          <div style={{ gridArea: "ch", borderRight: "1px solid #e2e8f0" }}>
+            {cell("channels", "Canais", "Como você entrega valor e alcança clientes?")}
+          </div>
+
+          {/* Cost Structure */}
+          <div style={{ gridArea: "c", borderRight: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
+            {cell("costStructure", "Estrutura de Custos", "Quais são os principais custos do negócio?")}
+          </div>
+
+          {/* Revenue Streams */}
+          <div style={{ gridArea: "rv", borderTop: "1px solid #e2e8f0" }}>
+            {cell("revenueStreams", "Fluxos de Receita", "Como o negócio gera receita?")}
+          </div>
+        </div>
       </NodeWrapper>
       <Handle type="source" position={Position.Bottom} />
     </>
