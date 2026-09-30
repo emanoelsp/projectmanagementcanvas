@@ -2,29 +2,24 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { useCanvasStore } from "@/stores/canvasStore";
 import { getCanvas } from "@/services/canvas.service";
 import { CanvasContainer } from "@/components/canvas/CanvasContainer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { INITIAL_NODES, INITIAL_EDGES } from "@/lib/canvas-config";
+import { useCanvasSync } from "@/hooks/useCanvasSync";
 import { Button } from "@/components/ui/button";
 
 function CanvasContent() {
-  const { user, team } = useAuthStore();
+  const { team } = useAuthStore();
   const { initCanvas, nodes } = useCanvasStore();
-  const router = useRouter();
+
+  // Persiste automaticamente 800ms após qualquer mudança
+  useCanvasSync(team?.id);
 
   useEffect(() => {
-    if (!team || !user) return;
-
-    // Validar que o usuário é membro desta equipe pelo email
-    const isMember = team.memberEmails?.includes(user.email);
-    if (!isMember) {
-      router.push("/dashboard");
-      return;
-    }
+    if (!team) return;
 
     const loadCanvas = async () => {
       try {
@@ -35,7 +30,8 @@ function CanvasContent() {
             canvas.edges,
             canvas.unlockedNodes,
             canvas.completedNodes,
-            canvas.paradigmChoice
+            canvas.paradigmChoice,
+            canvas.nodeStyles
           );
         } else {
           initCanvas(INITIAL_NODES, INITIAL_EDGES, ["step1"], []);
@@ -47,7 +43,7 @@ function CanvasContent() {
     };
 
     loadCanvas();
-  }, [team, user, initCanvas, router]);
+  }, [team, initCanvas]);
 
   if (!team) {
     return (
@@ -87,7 +83,7 @@ function CanvasContent() {
       <div className="flex-1">
         <CanvasContainer
           initialNodes={initialNodesArray}
-          initialEdges={Object.values(INITIAL_EDGES)}
+          initialEdges={INITIAL_EDGES}
           teamName={team.name}
         />
       </div>

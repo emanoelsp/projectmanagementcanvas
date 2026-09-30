@@ -46,5 +46,6 @@ export interface Canvas {
   unlockedNodes: string[];
   completedNodes: string[];
   paradigmChoice?: "A" | "B";
+  nodeStyles?: Record<string, any>;
   updatedAt: Date;
 }

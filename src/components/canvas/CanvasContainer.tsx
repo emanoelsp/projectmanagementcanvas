@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -11,6 +11,7 @@ import ReactFlow, {
   useEdgesState,
   NodeTypes,
   NodeMouseHandler,
+  NodeDragHandler,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
@@ -40,27 +41,37 @@ interface CanvasContainerProps {
 export function CanvasContainer({ initialNodes, initialEdges, teamName }: CanvasContainerProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-  const { unlockedNodes, nodeStyles } = useCanvasStore();
+  const { unlockedNodes, nodeStyles, nodes: storeNodes, updateNodePosition } = useCanvasStore();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Sincroniza locked state e estilos quando o store muda
+  // Reconstrói a lista de nós visíveis a partir do store sempre que unlockedNodes ou estilos mudam
+  // Preserva as posições atuais do ReactFlow para não perder drags
   useEffect(() => {
-    setNodes(prev =>
-      prev
-        .filter(node => unlockedNodes.includes(node.id)) // oculta nós bloqueados
-        .map(node => {
-          const style = nodeStyles[node.id] || DEFAULT_STYLE;
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              locked: false,
-              nodeStyle: style,
-            },
-          };
-        })
-    );
-  }, [unlockedNodes, nodeStyles, setNodes]);
+    setNodes(prev => {
+      const positionMap: Record<string, { x: number; y: number }> = {};
+      prev.forEach(n => { positionMap[n.id] = n.position; });
+
+      return Object.values(storeNodes)
+        .filter(node => unlockedNodes.includes(node.id))
+        .map(node => ({
+          ...node,
+          position: positionMap[node.id] || node.position || { x: 0, y: 0 },
+          data: {
+            ...node.data,
+            locked: false,
+            nodeStyle: nodeStyles[node.id] || DEFAULT_STYLE,
+          },
+        }));
+    });
+  }, [unlockedNodes, nodeStyles, storeNodes, setNodes]);
+
+  // Persiste posição no store após arrastar um nó
+  const onNodeDragStop: NodeDragHandler = useCallback(
+    (_, node) => {
+      updateNodePosition(node.id, node.position);
+    },
+    [updateNodePosition]
+  );
 
   // Filtra arestas onde source ou target ainda não foi desbloqueado
   const visibleEdges = edges.filter(
@@ -79,6 +90,7 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onNodeDragStop={onNodeDragStop}
         onPaneClick={() => setSelectedNodeId(null)}
         nodeTypes={nodeTypes}
         fitView
@@ -97,10 +109,7 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         {/* Paleta de estilos flutuante */}
         {selectedNodeId && (
           <Panel position="top-left">
-            <StylePalette
-              nodeId={selectedNodeId}
-              onClose={() => setSelectedNodeId(null)}
-            />
+            <StylePalette nodeId={selectedNodeId} onClose={() => setSelectedNodeId(null)} />
           </Panel>
         )}
       </ReactFlow>

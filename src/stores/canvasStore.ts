@@ -37,10 +37,11 @@ interface CanvasState {
   nodeStyles: Record<string, NodeStyle>;
   dirty: boolean;
 
-  initCanvas: (nodes: Record<string, CanvasNode>, edges: CanvasEdge[], unlockedNodes: string[], completedNodes: string[], paradigmChoice?: "A" | "B") => void;
+  initCanvas: (nodes: Record<string, CanvasNode>, edges: CanvasEdge[], unlockedNodes: string[], completedNodes: string[], paradigmChoice?: "A" | "B", nodeStyles?: Record<string, NodeStyle>) => void;
   completeNode: (nodeId: string, data: Record<string, any>) => void;
   updateNodeData: (nodeId: string, data: Record<string, any>) => void;
   updateNodeStyle: (nodeId: string, style: Partial<NodeStyle>) => void;
+  updateNodePosition: (nodeId: string, position: { x: number; y: number }) => void;
   unlockNode: (nodeId: string) => void;
   setParadigmChoice: (choice: "A" | "B") => void;
   reset: () => void;
@@ -55,8 +56,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   nodeStyles: {},
   dirty: false,
 
-  initCanvas: (nodes, edges, unlockedNodes, completedNodes, paradigmChoice) =>
-    set({ nodes, edges, unlockedNodes, completedNodes, paradigmChoice: paradigmChoice || null }),
+  initCanvas: (nodes, edges, unlockedNodes, completedNodes, paradigmChoice, nodeStyles) =>
+    set({ nodes, edges, unlockedNodes, completedNodes, paradigmChoice: paradigmChoice || null, nodeStyles: nodeStyles || {} }),
 
   completeNode: (nodeId, data) =>
     set((state) => {
@@ -92,6 +93,15 @@ export const useCanvasStore = create<CanvasState>((set) => ({
       nodes: {
         ...state.nodes,
         [nodeId]: { ...state.nodes[nodeId], data: { ...state.nodes[nodeId].data, ...data } },
+      },
+      dirty: true,
+    })),
+
+  updateNodePosition: (nodeId, position) =>
+    set((state) => ({
+      nodes: {
+        ...state.nodes,
+        [nodeId]: { ...state.nodes[nodeId], position },
       },
       dirty: true,
     })),
