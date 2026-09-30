@@ -40,3 +40,13 @@ body {
   stroke-dashoffset: 0;
   animation: dash 0.5s linear infinite;
 }
+
+/* Reset ReactFlow default styles for custom node types */
+.react-flow__node.react-flow__node-input {
+  width: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+

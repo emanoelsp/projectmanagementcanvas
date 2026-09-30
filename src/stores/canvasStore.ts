@@ -64,7 +64,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   dirty: false,
 
   initCanvas: (nodes, edges, unlockedNodes, completedNodes, paradigmChoice, nodeStyles) =>
-    set({ nodes, edges, unlockedNodes, completedNodes, paradigmChoice: paradigmChoice || null, nodeStyles: nodeStyles || {} }),
+    set({ nodes, edges, unlockedNodes, completedNodes, paradigmChoice: paradigmChoice || null, nodeStyles: nodeStyles || {}, dirty: false }),
 
   completeNode: (nodeId, data) =>
     set((state) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -13,6 +13,8 @@ import ReactFlow, {
   NodeMouseHandler,
   NodeDragHandler,
   NodeChange,
+  ReactFlowProvider,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCanvasStore, DEFAULT_STYLE } from "@/stores/canvasStore";
@@ -43,21 +45,27 @@ interface CanvasContainerProps {
   teamName: string;
 }
 
-export function CanvasContainer({ initialNodes, initialEdges, teamName }: CanvasContainerProps) {
+function CanvasFlow({ initialNodes, initialEdges, teamName }: CanvasContainerProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
   const { unlockedNodes, nodeStyles, nodes: storeNodes, updateNodePosition, updateNodeStyle } = useCanvasStore();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const { fitView } = useReactFlow();
+  const prevUnlockedRef = useRef<string[]>(unlockedNodes);
 
   // Reconstrói nós visíveis a partir do store, preservando posições e dimensões do ReactFlow
   useEffect(() => {
+    // Não reconstrói enquanto o store ainda não carregou os nós
+    if (Object.keys(storeNodes).length === 0) return;
+
     setNodes(prev => {
-      const prevMap: Record<string, { pos: { x: number; y: number }; w?: number; h?: number }> = {};
+      const prevMap: Record<string, { pos: { x: number; y: number }; width?: number | null; height?: number | null; style?: any }> = {};
       prev.forEach(n => {
         prevMap[n.id] = {
           pos: n.position,
-          w: n.style?.width as number | undefined,
-          h: n.style?.height as number | undefined,
+          width: n.width,
+          height: n.height,
+          style: n.style,
         };
       });
 
@@ -66,12 +74,14 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         .map(node => {
           const style = nodeStyles[node.id] || DEFAULT_STYLE;
           const saved = prevMap[node.id];
-          const width = saved?.w || style.width;
-          const height = saved?.h || style.height;
+          const width = saved?.width || style.width;
+          const height = saved?.height || style.height;
           return {
             ...node,
             position: saved?.pos || node.position || { x: 0, y: 0 },
-            style: width ? { width, height } : undefined,
+            width,
+            height,
+            style: width ? { ...saved?.style, width, height } : saved?.style,
             data: {
               ...node.data,
               locked: false,
@@ -80,14 +90,23 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
           };
         });
     });
-  }, [unlockedNodes, nodeStyles, storeNodes, setNodes]);
+
+    // Re-ajusta a viewport quando nós são desbloqueados
+    if (prevUnlockedRef.current.length !== unlockedNodes.length) {
+      prevUnlockedRef.current = unlockedNodes;
+      // Usa setTimeout para garantir que o ReactFlow já processou os novos nós
+      setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 100);
+    }
+  }, [unlockedNodes, nodeStyles, storeNodes, setNodes, fitView]);
 
   // Captura resize e posição ao fim da interação
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
       onNodesChange(changes);
       changes.forEach(change => {
-        if (change.type === "dimensions" && !change.resizing && change.dimensions) {
+        // Apenas salva dimensões quando o usuário explicitamente finaliza o resize (resizing === false)
+        // Evita disparar durante medição inicial automática do ReactFlow (onde resizing é undefined)
+        if (change.type === "dimensions" && change.resizing === false && change.dimensions) {
           updateNodeStyle(change.id, {
             width: change.dimensions.width,
             height: change.dimensions.height,
@@ -123,6 +142,7 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         onPaneClick={() => setSelectedNodeId(null)}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.2 }}
       >
         <Background color="#e2e8f0" gap={20} size={1} />
         <Controls />
@@ -141,5 +161,13 @@ export function CanvasContainer({ initialNodes, initialEdges, teamName }: Canvas
         )}
       </ReactFlow>
     </div>
+  );
+}
+
+export function CanvasContainer(props: CanvasContainerProps) {
+  return (
+    <ReactFlowProvider>
+      <CanvasFlow {...props} />
+    </ReactFlowProvider>
   );
 }

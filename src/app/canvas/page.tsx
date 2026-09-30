@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 
 function CanvasContent() {
   const { team } = useAuthStore();
-  const { initCanvas, nodes } = useCanvasStore();
+  const { initCanvas, nodes, unlockedNodes, nodeStyles } = useCanvasStore();
 
   // Persiste automaticamente 800ms após qualquer mudança
   useCanvasSync(team?.id);
@@ -66,10 +66,25 @@ function CanvasContent() {
     );
   }
 
-  const initialNodesArray = Object.values(nodes).map(node => ({
-    ...node,
-    position: node.position || { x: 0, y: 0 },
-  }));
+  // Filtra apenas nós desbloqueados antes de passar ao ReactFlow,
+  // garantindo que fitView posiciona a viewport corretamente desde o início
+  const initialNodesArray = Object.values(nodes)
+    .filter(node => unlockedNodes.includes(node.id))
+    .map(node => {
+      const style = nodeStyles[node.id];
+      return {
+        ...node,
+        position: node.position || { x: 0, y: 0 },
+        width: style?.width,
+        height: style?.height,
+        style: style?.width ? { width: style.width, height: style.height } : undefined,
+        data: {
+          ...node.data,
+          locked: false,
+          nodeStyle: style || undefined,
+        },
+      };
+    });
 
   return (
     <main className="w-full h-screen flex flex-col">

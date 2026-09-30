@@ -29,15 +29,16 @@ export function NodeWrapper({
     borderWidth: 2,
     borderStyle: "solid",
     borderRadius: radius,
-    width: "100%",
-    height: "100%",
+    minWidth,
+    minHeight,
+    width: nodeStyle?.width,
+    height: nodeStyle?.height,
     transform: shape === "diamond" ? "rotate(45deg)" : undefined,
   };
 
   const innerStyle: React.CSSProperties = {
     transform: shape === "diamond" ? "rotate(-45deg)" : undefined,
     padding: "1rem",
-    height: "100%",
   };
 
   return (
