@@ -50,3 +50,15 @@ body {
   text-align: left;
 }
 
+/* Oculta as bordas e caixas azuis externas do NodeResizer, mantendo o cursor e a ação de redimensionar */
+.react-flow__resize-control.line {
+  border-color: transparent !important;
+}
+
+.react-flow__resize-control.handle {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+

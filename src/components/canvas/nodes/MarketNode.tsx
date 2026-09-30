@@ -38,36 +38,52 @@ export function MarketNode({ data, id }: MarketNodeProps) {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={220} minHeight={150}>
-        <div className="flex items-center justify-between mb-2">
+      <NodeWrapper nodeStyle={data.nodeStyle} minWidth={380} minHeight={160}>
+        <div className="flex items-center justify-between mb-3">
           <p className="text-xs font-semibold uppercase" style={{ color: fontColor }}>{data.label}</p>
           {data.description && <InfoTooltip text={data.description} />}
         </div>
 
         {isEditing ? (
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs font-medium" style={{ color: fontColor }}>Público-alvo</label>
-              <textarea value={audience} onChange={e => setAudience(e.target.value)}
-                placeholder="Descreva em uma frase..."
-                className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[50px] mt-1" />
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium block mb-1" style={{ color: fontColor }}>
+                  Público-alvo
+                </label>
+                <textarea
+                  value={audience}
+                  onChange={e => setAudience(e.target.value)}
+                  placeholder="Ex: Professores do ensino público..."
+                  className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[70px] resize-none"
+                  style={{ color: fontColor }}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium block mb-1" style={{ color: fontColor }}>
+                  {paradigmChoice === "B" ? "Concorrente Principal" : "Inspiração (Schumpeteriana)"}
+                </label>
+                {paradigmChoice === "B" ? (
+                  <textarea
+                    value={competitor}
+                    onChange={e => setCompetitor(e.target.value)}
+                    placeholder="Ex: Principal concorrente..."
+                    className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[70px] resize-none"
+                    style={{ color: fontColor }}
+                  />
+                ) : (
+                  <textarea
+                    value={inspiration}
+                    onChange={e => setInspiration(e.target.value)}
+                    placeholder="Ex: Referência inspiradora..."
+                    className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[70px] resize-none"
+                    style={{ color: fontColor }}
+                  />
+                )}
+              </div>
             </div>
-            {paradigmChoice === "A" && (
-              <div>
-                <label className="text-xs font-medium" style={{ color: fontColor }}>Inspiração (Schumpeteriana)</label>
-                <textarea value={inspiration} onChange={e => setInspiration(e.target.value)}
-                  placeholder="Qual é a inspiração disso?"
-                  className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[50px] mt-1" />
-              </div>
-            )}
-            {paradigmChoice === "B" && (
-              <div>
-                <label className="text-xs font-medium" style={{ color: fontColor }}>Concorrente Principal</label>
-                <textarea value={competitor} onChange={e => setCompetitor(e.target.value)}
-                  placeholder="Qual é o principal concorrente?"
-                  className="w-full p-2 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[50px] mt-1" />
-              </div>
-            )}
+
             <div className="flex gap-2">
               <Button size="sm" onClick={handleSave} className="flex-1">Salvar</Button>
               <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="flex-1">Cancelar</Button>
@@ -75,17 +91,34 @@ export function MarketNode({ data, id }: MarketNodeProps) {
           </div>
         ) : (
           <div>
-            {audience ? (
-              <div className="text-sm mb-2 p-2 bg-white/50 rounded space-y-1 min-h-[50px] break-words">
-                <p style={{ color: fontColor }}><span className="font-medium text-xs">Público: </span>{audience}</p>
-                {paradigmChoice === "A" && inspiration && <p style={{ color: fontColor }}><span className="font-medium text-xs">Inspiração: </span>{inspiration}</p>}
-                {paradigmChoice === "B" && competitor && <p style={{ color: fontColor }}><span className="font-medium text-xs">Concorrente: </span>{competitor}</p>}
+            {audience || inspiration || competitor ? (
+              <div className="grid grid-cols-2 gap-3 mb-3 p-2 bg-white/50 rounded min-h-[60px] break-words text-sm">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase opacity-70 mb-0.5" style={{ color: fontColor }}>
+                    Público-alvo
+                  </p>
+                  <p style={{ color: fontColor }}>
+                    {audience || <span className="opacity-50 italic">Não preenchido</span>}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase opacity-70 mb-0.5" style={{ color: fontColor }}>
+                    {paradigmChoice === "B" ? "Concorrente Principal" : "Inspiração (Schumpeteriana)"}
+                  </p>
+                  <p style={{ color: fontColor }}>
+                    {(paradigmChoice === "B" ? competitor : inspiration) || (
+                      <span className="opacity-50 italic">Não preenchido</span>
+                    )}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="text-sm mb-2 p-2 bg-white/30 rounded min-h-[50px] opacity-60" style={{ color: fontColor }}>Clique para preencher</div>
+              <div className="text-sm mb-3 p-2 bg-white/30 rounded min-h-[60px] opacity-60 flex items-center justify-center" style={{ color: fontColor }}>
+                Clique para preencher
+              </div>
             )}
             <Button size="sm" variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
-              {audience ? "Editar" : "Preencher"}
+              {audience || inspiration || competitor ? "Editar" : "Preencher"}
             </Button>
           </div>
         )}

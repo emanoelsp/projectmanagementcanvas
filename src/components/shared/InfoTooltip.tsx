@@ -25,7 +25,7 @@ export function InfoTooltip({ text }: { text: string }) {
         <HelpCircle size={13} />
       </button>
       {open && (
-        <div className="absolute right-0 top-5 z-[9999] w-56 bg-white border border-slate-200 rounded-lg p-2.5 shadow-xl text-xs text-slate-600 leading-relaxed">
+        <div className="absolute right-0 top-5 z-[9999] w-72 bg-white border border-slate-200 rounded-lg p-3 shadow-xl text-xs text-slate-600 leading-relaxed whitespace-pre-line">
           {text}
         </div>
       )}

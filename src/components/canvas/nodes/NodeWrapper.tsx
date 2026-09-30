@@ -46,8 +46,8 @@ export function NodeWrapper({
       <NodeResizer
         minWidth={minWidth}
         minHeight={minHeight}
-        handleStyle={{ width: 10, height: 10, borderRadius: 2 }}
-        lineStyle={{ borderWidth: 1 }}
+        lineStyle={{ borderColor: "transparent" }}
+        handleStyle={{ backgroundColor: "transparent", borderColor: "transparent", width: 14, height: 14 }}
       />
       <div style={outerStyle} className={`overflow-hidden ${className}`}>
         <div style={innerStyle}>{children}</div>

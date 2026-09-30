@@ -25,8 +25,21 @@ function CanvasContent() {
       try {
         const canvas = await getCanvas(team.id);
         if (canvas) {
+          // Garante que descrições e exemplos atualizados sejam sempre exibidos nos tooltips
+          const mergedNodes = { ...canvas.nodes };
+          Object.keys(INITIAL_NODES).forEach((id) => {
+            if (mergedNodes[id]) {
+              mergedNodes[id] = {
+                ...mergedNodes[id],
+                data: {
+                  ...mergedNodes[id].data,
+                  description: INITIAL_NODES[id].data.description,
+                },
+              };
+            }
+          });
           initCanvas(
-            canvas.nodes,
+            mergedNodes,
             canvas.edges,
             canvas.unlockedNodes,
             canvas.completedNodes,
