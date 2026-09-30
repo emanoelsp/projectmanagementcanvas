@@ -50,7 +50,7 @@ export const INITIAL_NODES: Record<string, CanvasNode> = {
     id: "step4",
     label: "Dimensionamento (TAM/SAM/SOM)",
     type: "pyramid",
-    data: { label: "Dimensionamento (TAM/SAM/SOM)", tam: "", sam: "", som: "", description: "TAM = mercado total disponível | SAM = mercado que você pode atingir | SOM = mercado realista no curto prazo." },
+    data: { label: "Dimensionamento (TAM/SAM/SOM)", tam: "", sam: "", som: "", description: "TAM: todo o mercado disponível (100% dos potenciais clientes). SAM: a fatia que você consegue atingir com seu modelo atual. SOM: o que você pode conquistar realisticamente nos próximos 1–3 anos. Para cada um, descreva em uma frase, informe o tamanho estimado e cite a fonte dos dados." },
     position: { x: 400, y: 900 },
     completed: false,
     locked: true,
